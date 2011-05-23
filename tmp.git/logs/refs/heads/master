@@ -1,0 +1,2 @@
+0000000000000000000000000000000000000000 633ac08dafbb93a9dc7c1e2570d9193f17963f33 Lynn <lnnngn@gmail.com> 1304377102 -0700	commit (initial): lame client that crashes on close. can connect to server and send pic, but many things hardcoded
+633ac08dafbb93a9dc7c1e2570d9193f17963f33 403f01facd3a634afa5a8e5b9e8ad7c16bb4fa27 Lynn <lnnngn@gmail.com> 1306191278 -0700	commit: initial commit
