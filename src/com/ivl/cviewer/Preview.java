@@ -2,12 +2,9 @@ package com.ivl.cviewer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -15,23 +12,22 @@ import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
-import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
-import android.widget.Toast;
+
+import com.ivl.network.ServerConnection;
 
 
 class Preview extends SurfaceView implements SurfaceHolder.Callback {
 	private static String TAG = "Preview";
     SurfaceHolder holder_;
     Camera camera_;
-    Socket server_;
+    ServerConnection server_;
 	private static int count_ = 0;
 	private boolean sendData_;
     
-    Preview(Context context, Socket server) {
+    Preview(Context context, ServerConnection server) {
         super(context);
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.
@@ -41,14 +37,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setClickable(true);
-//        setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				Log.d(TAG, "click click!");
-//				Toast.makeText(getContext(), "click!", Toast.LENGTH_SHORT).show();
-//			}
-//		});
-//        
+
         if (server == null) {
         	Log.e(TAG, "Passed bad server socket to " + TAG);
         }
@@ -122,8 +111,6 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 				
 				Camera.Parameters parameters = camera_.getParameters();
 				int imageFormat = parameters.getPreviewFormat();
-                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                byte[] dataToSend = null;
                 byte[] jpegBytes = null;
                 if (imageFormat == ImageFormat.NV21) {
                 	Log.d(TAG, "image format NV21");
@@ -137,63 +124,14 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
                     yuvImage.compressToJpeg(rect, 90, tmp);
 
                     jpegBytes = tmp.toByteArray();
-                    DataOutputStream tmp1 = new DataOutputStream(outputStream);
-                    try {
-                    	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
-						tmp1.writeShort(jpegBytes.length);
-						tmp1.flush();
-						byte b = 1;
-						outputStream.write(68);
-						outputStream.write(jpegBytes);
-						
-						dataToSend = outputStream.toByteArray();
-						tmp.close();
-						tmp1.close();
-						outputStream.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
+                    server_.sendPreviewFrame(jpegBytes);
                   } else if (imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.RGB_565) {
                 	 Log.e(TAG, "TODO: image format JPEG or rgb");
                   }
-
-                  if (dataToSend != null) {
-                      try {
-                		  Log.d(TAG, "Sending " + dataToSend.length + " bytes!***");
-                		  if (server_ != null) {
-                			  server_.getOutputStream().write(dataToSend);
-                		  } else {
-                			  Log.e(TAG, "no server to send to!");
-                		  }
-//                    	  if (count % 5 == 0) {
-//	                      Log.d(TAG, "storing: " + Environment.getExternalStorageDirectory().getAbsolutePath()
-//  	                  		  + "\nstate: " + Environment.getExternalStorageState());
-//	                          File root = Environment.getExternalStorageDirectory();
-//	                          
-//	                          FileOuputStream fileStream = new FileOutputStream(root + "/" + "image" + ++count + ".jpg");
-//	                          fileStream.write(jpegBytes);
-//	                          fileStream.flush();
-//	                          fileStream.close();
-//                    	  }
-                      } catch (FileNotFoundException e) {
-                          Log.e(TAG, e.toString() );
-                      } catch (IOException e) {
-                          Log.e(TAG, e.toString() );
-                      }
-                  } else {
-                	  Log.e(TAG, "WHY NO DATA");
-                  }
-                  dataToSend = null;
 			} 
     	});
     	
         camera_.startPreview();
     }
-    
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//    	Log.d(TAG, "touch touch!!!!!!");
-////    	Toast.makeText(getContext(), "touch!", Toast.LENGTH_SHORT).show();
-//    	return true;
-//    }
+ 
 }

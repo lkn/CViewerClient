@@ -70,7 +70,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 		}
         
         FrameLayout frame = new FrameLayout(this);
-        preview_ = new Preview(this, serverConnection_.getSocket());
+        preview_ = new Preview(this, serverConnection_);
         preview_.setOnClickListener(this);
         
         frame.addView(preview_);

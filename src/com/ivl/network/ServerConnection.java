@@ -1,12 +1,18 @@
 package com.ivl.network;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import android.util.Log;
+
 import com.ivl.cviewer.CViewerClient;
 
 public class ServerConnection {
+	private static String TAG = "Server Connection";
+	
 	public static final int PORT = 1111;
 	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
 	
@@ -32,6 +38,35 @@ public class ServerConnection {
 	
 	public Socket getSocket() {
 		return serverSocket_;
+	}
+
+	protected void send(byte[] bytes) throws IOException {
+		if (serverSocket_ == null) {
+			Log.e(TAG, "no server to send to!");
+			return;
+		}
+
+		Log.d(TAG, "Sending " + bytes.length + " bytes!***");
+		serverSocket_.getOutputStream().write(bytes);
+	}
+	
+	// append header, send jpeg bytes to server
+	public void sendPreviewFrame(byte[] jpegBytes) {
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        DataOutputStream tmp = new DataOutputStream(outputStream);
+        try {
+		  	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
+			tmp.writeShort(jpegBytes.length);
+			tmp.flush();
+			outputStream.write(68);
+			outputStream.write(jpegBytes);
+			
+			send(outputStream.toByteArray());
+			tmp.close();
+			outputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public void getMoreDetails() {
