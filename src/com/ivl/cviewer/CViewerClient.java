@@ -62,11 +62,11 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			Thread t = new Thread(new TCPListenHandler(this, this, serverConnection_.getSocket()));
 			t.start();
 		} catch (UnknownHostException e) {
-			Log.e(TAG, "Couldn't connect to (no host)" + serverConnection_.HOST);
-			infoView_.appendErrorText("Couldn't connect to (no host) " + serverConnection_.HOST + "\n");
+			Log.e(TAG, "Couldn't connect to (no host)" + ServerConnection.HOST);
+			infoView_.appendErrorText("Couldn't connect to (no host) " + ServerConnection.HOST + "\n");
 		} catch (IOException e) {
-			Log.e(TAG, "Couldn't connect to (io) " + serverConnection_.HOST );
-			infoView_.appendErrorText("Couldn't connect (io) to " + serverConnection_.HOST  + "\n");
+			Log.e(TAG, "Couldn't connect to (io) " + ServerConnection.HOST );
+			infoView_.appendErrorText("Couldn't connect (io) to " + ServerConnection.HOST  + "\n");
 		}
         
         FrameLayout frame = new FrameLayout(this);
@@ -123,6 +123,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			Toast.makeText(getApplicationContext(), "stop preview action, send own request", Toast.LENGTH_SHORT).show();
 			matchId_ = 14;  // guiness factory 2
 			preview_.stopData();
+			serverConnection_.getMoreDetails();
 		}
 		openOptionsMenu();
 		sendPreviewFrames_ = !sendPreviewFrames_;

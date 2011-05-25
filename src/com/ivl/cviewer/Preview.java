@@ -142,6 +142,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
                     	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
 						tmp1.writeShort(jpegBytes.length);
 						tmp1.flush();
+						byte b = 1;
+						outputStream.write(68);
 						outputStream.write(jpegBytes);
 						
 						dataToSend = outputStream.toByteArray();
