@@ -18,12 +18,12 @@ import android.widget.TextView;
 public class CViewerClient extends Activity implements TCPListener {
 	private static String TAG = "CViewerClient";
 	private static int PORT = 1111;
-	private static String HOST = "pumice.ucsd.edu";//"137.110.119.228"; // "192.168.1.122";//"10.0.2.2"; 
+	private static String HOST = "192.168.1.104";//"pumice.ucsd.edu";
 	
 	private Preview preview_;
+	private InfoView infoView_;
+
 	private Socket server_;
-	private Infodialog info_;
-	private TextView errorView_;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,15 +33,14 @@ public class CViewerClient extends Activity implements TCPListener {
         setFullScreen();
         disableScreenTurnOff();
 
-        errorView_ = new TextView(this);
-        errorView_.setTextColor(Color.RED);
+        infoView_ = new InfoView(this);
         
         // check WIFI 
         // TODO: extend for any network connection
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         if (!mWifi.isConnected()) {
-            errorView_.append("NO WIFI!!!\n");
+            infoView_.appendErrorText("NO WIFI!!!\n");
         }
         
         try {
@@ -53,20 +52,17 @@ public class CViewerClient extends Activity implements TCPListener {
 			t.start();
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "Couldn't connect to (no host)" + HOST);
-			errorView_.append("Couldn't connect to (no host) " + HOST + "\n");
+			infoView_.appendErrorText("Couldn't connect to (no host) " + HOST + "\n");
 		} catch (IOException e) {
 			Log.e(TAG, "Couldn't connect to (io) " + HOST);
-			errorView_.append("Couldn't connect (io) to " + HOST + "\n");
+			infoView_.appendErrorText("Couldn't connect (io) to " + HOST + "\n");
 		}
         
         FrameLayout frame = new FrameLayout(this);
         preview_ = new Preview(this, server_);
+        
         frame.addView(preview_);
-        
-        info_ = new Infodialog(this);
-//        info_.setText("TESTING!!!");
-        
-        frame.addView(errorView_);
+        frame.addView(infoView_);
         
         setContentView(frame);
     }
@@ -98,7 +94,34 @@ public class CViewerClient extends Activity implements TCPListener {
     public void callCompleted(String info) {
     	Log.d(TAG, "received: " + info);
     	if (info != null) {
-    		info_.setText(info);
+    		String[] arr = info.split("#");
+    		StringBuffer buffer = new StringBuffer();
+    		for (int i = 0; i < arr.length; ++i) {
+    			switch (i) {
+    			case 0:  // image name
+    				buffer.append("Name: ").append(arr[i]).append("\n");
+    				break;
+    			case 1:  // id
+    				// skip
+    				break;
+    			case 2:  // camera make
+    				buffer.append("Camera Make: ").append(arr[i]).append("\n");
+    				break;
+    			case 3: // camera model
+    				buffer.append("Camera Model: ").append(arr[i]).append("\n");
+    				break;
+    			case 4:  // date time
+    				buffer.append("Date Taken: ").append(arr[i]).append("\n");
+    				break;
+    			case 5:  // shutter speed
+    				buffer.append("Shutter Speed: ").append(arr[i]).append("\n");
+    				break;
+    			case 6:  // focal length
+    				buffer.append("Focal Length: ").append(arr[i]).append("\n");
+    				break;
+    			}
+    		}
+    		infoView_.setInfoText(buffer.toString());
     	} 
     }
 }

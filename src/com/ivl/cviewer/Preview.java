@@ -81,12 +81,12 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // Now that the size is known, set up the camera parameters and begin
         // the preview.
-//        Camera.Parameters parameters = camera_.getParameters();
+        Camera.Parameters parameters = camera_.getParameters();
 //        parameters.setPreviewSize(320, 240);
 //        parameters.setPreviewFrameRate(15);
 //        parameters.setSceneMode(Camera.Parameters.SCENE_MODE_NIGHT);
-//        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-//        camera_.setParameters(parameters);
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+        camera_.setParameters(parameters);
     	
     	if (camera_ == null) {
     		Log.e(TAG, "No camera for preview!");
@@ -101,7 +101,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 				++count_;
 
 				// Don't want to overload the server
-				if (count_ % 15 != 0) return;
+				if (count_ % 20 != 0) return;
 
 				Log.d(TAG, "on preview frame " + count_);
 				if (camera_ == null) {
@@ -120,7 +120,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
                     int h = parameters.getPreviewSize().height;
                     YuvImage yuvImage = new YuvImage(data, imageFormat, w, h, null);
                     
-                    // TODO: hardcoded.. the server assumes its a 400x300 image
+                    // TODO: hardcoded.. the server assumes its a 160x120 image
                     Rect rect = new Rect(0, 0, 400, 300);
                     ByteArrayOutputStream tmp = new ByteArrayOutputStream();
                     yuvImage.compressToJpeg(rect, 90, tmp);

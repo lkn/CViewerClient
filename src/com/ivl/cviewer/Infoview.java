@@ -9,31 +9,34 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 
 
-public class Infoview extends TextView {
-	private static String TAG = "Infoview";
-	private CountDownTimer timer_;
+public class InfoView extends TextView {
+	private static String TAG = "InfoView";
 	
-	public Infoview(Context context) {
+	private static int INFO_COLOR = Color.GREEN;
+	private static int ERROR_COLOR = Color.RED;
+	
+	public InfoView(Context context) {
 		super(context);
-		setBackgroundColor(Color.argb(200, 75, 0, 0));
+		//setBackgroundColor(Color.argb(200, 75, 0, 0));
 	}
 	
-	public void setText(String str) {
-		super.setText(str);
-		setVisibility(View.VISIBLE);
-//		timer_ = new CountDownTimer(5000, 1000) {
-//			
-//			@Override
-//			public void onFinish() {
-//				Log.i(TAG, "making infoview disappear!");
-//				setVisibility(View.GONE);
-//			}
-//			
-//			@Override
-//			public void onTick(long millisUntilFinished) {
-//			}
-//			
-//		}.start();
+	public void setInfoText(String str) {
+		setTextColor(INFO_COLOR);
+		setText(str);
 	}
 	
+	public void appendInfoText(String str) {
+		setTextColor(INFO_COLOR);
+		setText(str);
+	}
+	
+	public void setErrorText(String str) {
+		setTextColor(ERROR_COLOR);
+		setText(str);
+	}
+	
+	public void appendErrorText(String str) {
+		setTextColor(ERROR_COLOR);
+		setText(str);
+	}
 }
