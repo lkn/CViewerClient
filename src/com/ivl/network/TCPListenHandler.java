@@ -1,10 +1,11 @@
-package com.ivl.cviewer;
+package com.ivl.network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
 
 import android.app.Activity;
 import android.util.Log;

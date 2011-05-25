@@ -14,10 +14,12 @@ public class InfoView extends TextView {
 	
 	private static int INFO_COLOR = Color.GREEN;
 	private static int ERROR_COLOR = Color.RED;
+	private static int BORDER_PADDING = 5;
 	
 	public InfoView(Context context) {
 		super(context);
-		//setBackgroundColor(Color.argb(200, 75, 0, 0));
+		setClickable(false);
+		setPadding(BORDER_PADDING, BORDER_PADDING, BORDER_PADDING, BORDER_PADDING);
 	}
 	
 	public void setInfoText(String str) {

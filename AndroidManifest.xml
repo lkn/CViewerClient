@@ -26,6 +26,6 @@
         </activity>
     </application>
     
-    <activity android:name="com.ivl.cviewer.TCPListenHandler" />
+    <activity android:name="com.ivl.network.TCPListenHandler" />
 
 </manifest>

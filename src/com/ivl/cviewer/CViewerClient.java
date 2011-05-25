@@ -5,25 +5,37 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.widget.Toast;
 
-public class CViewerClient extends Activity implements TCPListener {
+import com.ivl.cviewerclient.R;
+import com.ivl.network.DetailsMap;
+import com.ivl.network.ServerConnection;
+import com.ivl.network.TCPListenHandler;
+import com.ivl.network.TCPListener;
+
+public class CViewerClient extends Activity implements TCPListener, OnClickListener {
 	private static String TAG = "CViewerClient";
-	private static int PORT = 1111;
-	private static String HOST = "192.168.1.104";//"pumice.ucsd.edu";
+
+	private static int INVALID = -1;
 	
 	private Preview preview_;
 	private InfoView infoView_;
 
-	private Socket server_;
+	private ServerConnection serverConnection_;
+	private int matchId_;  // id of the matched image
+	private boolean sendPreviewFrames_;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,42 +56,78 @@ public class CViewerClient extends Activity implements TCPListener {
         }
         
         try {
-			server_ = new Socket(HOST, PORT);
-			server_.setTcpNoDelay(true);
+			serverConnection_ = new ServerConnection(this);
 
 			// start thread to listen to server
-			Thread t = new Thread(new TCPListenHandler(this, this, server_));
+			Thread t = new Thread(new TCPListenHandler(this, this, serverConnection_.getSocket()));
 			t.start();
 		} catch (UnknownHostException e) {
-			Log.e(TAG, "Couldn't connect to (no host)" + HOST);
-			infoView_.appendErrorText("Couldn't connect to (no host) " + HOST + "\n");
+			Log.e(TAG, "Couldn't connect to (no host)" + serverConnection_.HOST);
+			infoView_.appendErrorText("Couldn't connect to (no host) " + serverConnection_.HOST + "\n");
 		} catch (IOException e) {
-			Log.e(TAG, "Couldn't connect to (io) " + HOST);
-			infoView_.appendErrorText("Couldn't connect (io) to " + HOST + "\n");
+			Log.e(TAG, "Couldn't connect to (io) " + serverConnection_.HOST );
+			infoView_.appendErrorText("Couldn't connect (io) to " + serverConnection_.HOST  + "\n");
 		}
         
         FrameLayout frame = new FrameLayout(this);
-        preview_ = new Preview(this, server_);
+        preview_ = new Preview(this, serverConnection_.getSocket());
+        preview_.setOnClickListener(this);
         
         frame.addView(preview_);
         frame.addView(infoView_);
         
         setContentView(frame);
+        
+        matchId_ = INVALID;
+        sendPreviewFrames_ = true;
+        preview_.sendData();
     }
 
     @Override
     protected void onStop() {
     	super.onStop();
-    	try {
-    		if (server_ != null) {
-    			server_.close();
-    		}
-		} catch (IOException e) {
-			Log.e(TAG, "Error on server closing");
-			e.printStackTrace();
-		}
+    	if (serverConnection_ != null) {
+    		serverConnection_.close();
+    	}
     }
     
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	Toast.makeText(getApplicationContext(), "menu", Toast.LENGTH_SHORT).show();
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.layout.menu, menu);
+    	return true;
+    } 
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item){
+        switch (item.getItemId()) {
+        	case R.id.description:
+                break;
+        	case R.id.map:
+                break;
+        	case R.id.comment:
+        		break;
+        	case R.id.view_comments:
+        		break;
+        }
+        return false;
+    } 
+
+	@Override
+	public void onClick(View view) {
+		if (sendPreviewFrames_) {
+			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
+			preview_.sendData();
+		} else {
+			Toast.makeText(getApplicationContext(), "stop preview action, send own request", Toast.LENGTH_SHORT).show();
+			matchId_ = 14;  // guiness factory 2
+			preview_.stopData();
+		}
+		openOptionsMenu();
+		sendPreviewFrames_ = !sendPreviewFrames_;
+	}
+
 	private void setFullScreen() {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -91,6 +139,7 @@ public class CViewerClient extends Activity implements TCPListener {
 							 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 	}
 	
+	// data from Preview
     public void callCompleted(String info) {
     	Log.d(TAG, "received: " + info);
     	if (info != null) {
@@ -102,7 +151,7 @@ public class CViewerClient extends Activity implements TCPListener {
     				buffer.append("Name: ").append(arr[i]).append("\n");
     				break;
     			case 1:  // id
-    				// skip
+    				matchId_ = Integer.parseInt(arr[i]);
     				break;
     			case 2:  // camera make
     				buffer.append("Camera Make: ").append(arr[i]).append("\n");
@@ -122,6 +171,12 @@ public class CViewerClient extends Activity implements TCPListener {
     			}
     		}
     		infoView_.setInfoText(buffer.toString());
-    	} 
+    	} else {
+    		matchId_ = INVALID;
+    	}
+    }
+
+    public void handleMoreDetails(DetailsMap detailsMap) {
+    	Toast.makeText(getApplicationContext(), "handling more details", Toast.LENGTH_SHORT).show();
     }
 }

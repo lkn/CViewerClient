@@ -29,6 +29,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     Camera camera_;
     Socket server_;
 	private static int count_ = 0;
+	private boolean sendData_;
     
     Preview(Context context, Socket server) {
         super(context);
@@ -40,20 +41,28 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
         setFocusable(true);
         setFocusableInTouchMode(true);
         setClickable(true);
-        setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Log.d(TAG, "click click!");
-				Toast.makeText(getContext(), "click!", Toast.LENGTH_SHORT).show();
-			}
-		});
-        
+//        setOnClickListener(new View.OnClickListener() {
+//			@Override
+//			public void onClick(View v) {
+//				Log.d(TAG, "click click!");
+//				Toast.makeText(getContext(), "click!", Toast.LENGTH_SHORT).show();
+//			}
+//		});
+//        
         if (server == null) {
         	Log.e(TAG, "Passed bad server socket to " + TAG);
         }
         server_ = server;
+        sendData_ = false;
     }
 
+    void sendData() {
+    	sendData_ = true;
+    }
+    
+    void stopData() {
+    	sendData_ = false;
+    }
     
     public void surfaceCreated(SurfaceHolder holder) {
         // The Surface has been created, acquire the camera and tell it where
@@ -98,6 +107,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     		// Send preview frames to server
 			@Override
 			public void onPreviewFrame(byte[] data, Camera camera) {
+				if (!sendData_) return;
+				
 				++count_;
 
 				// Don't want to overload the server
