@@ -85,6 +85,7 @@ public class ServerConnection {
 	}
 	
 	// get more details for this image id
+	// not used because now i just get all the data on the first go
 	public void getMoreDetails(int imageId) {
 		try {
 			byte[] asciiIdBytes = Integer.toString(imageId).getBytes("US-ASCII");

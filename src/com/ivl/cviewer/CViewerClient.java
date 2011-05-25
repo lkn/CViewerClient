@@ -31,6 +31,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 	
 	private Preview preview_;
 	private InfoView infoView_;
+	private Infodialog descriptionBox_;
 
 	private ServerConnection serverConnection_;
 	private MatchedImage matchedImage_;
@@ -80,6 +81,8 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
         matchedImage_ = null;
         sendPreviewFrames_ = true;
         preview_.sendData();
+        
+        descriptionBox_ = new Infodialog(this);
     }
 
     @Override
@@ -102,6 +105,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
     public boolean onOptionsItemSelected(MenuItem item){
         switch (item.getItemId()) {
         	case R.id.description:
+        		descriptionBox_.setText(matchedImage_.description());
                 break;
         	case R.id.map:
                 break;
@@ -146,13 +150,14 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
     }
 
 	private void displayDetails(String info) {
-		if (info != null && !info.equals("-1")) {
+		if (info == null || info.equals("-1")) {
 			infoView_.clear();
     		matchedImage_ = null;
     		return;
 		}
 		
 		matchedImage_ = new MatchedImage(info);
+		Log.d(TAG, "details parsed: " + matchedImage_.details());
 		infoView_.setInfoText(matchedImage_.details());
 	}
 }
