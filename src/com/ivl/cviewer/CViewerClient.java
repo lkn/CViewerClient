@@ -121,7 +121,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			preview_.sendData();
 		} else {
 			Toast.makeText(getApplicationContext(), "stop preview action, send own request", Toast.LENGTH_SHORT).show();
-			matchId_ = 14;  // guiness factory 2
+			matchId_ = 4;  // guiness factory 2
 			preview_.stopData();
 			serverConnection_.getMoreDetails();
 		}
@@ -143,7 +143,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 	// data from Preview
     public void callCompleted(String info) {
     	Log.d(TAG, "received: " + info);
-    	if (info != null) {
+    	if (info != null && !info.equals("-1")) {
     		String[] arr = info.split("#");
     		StringBuffer buffer = new StringBuffer();
     		for (int i = 0; i < arr.length; ++i) {
@@ -154,25 +154,23 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
     			case 1:  // id
     				matchId_ = Integer.parseInt(arr[i]);
     				break;
-    			case 2:  // camera make
-    				buffer.append("Camera Make: ").append(arr[i]).append("\n");
+    			case 2:  // date time
+    				buffer.append("Date Taken: ").append(arr[i]).append("\n");
     				break;
     			case 3: // camera model
     				buffer.append("Camera Model: ").append(arr[i]).append("\n");
     				break;
-    			case 4:  // date time
-    				buffer.append("Date Taken: ").append(arr[i]).append("\n");
-    				break;
-    			case 5:  // shutter speed
+    			case 4:  // shutter speed
     				buffer.append("Shutter Speed: ").append(arr[i]).append("\n");
     				break;
-    			case 6:  // focal length
+    			case 5:  // focal length
     				buffer.append("Focal Length: ").append(arr[i]).append("\n");
     				break;
     			}
     		}
     		infoView_.setInfoText(buffer.toString());
     	} else {
+    		infoView_.clear();
     		matchId_ = INVALID;
     	}
     }

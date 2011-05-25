@@ -41,4 +41,8 @@ public class InfoView extends TextView {
 		setTextColor(ERROR_COLOR);
 		setText(str);
 	}
+
+	public void clear() {
+		setText("");
+	}
 }

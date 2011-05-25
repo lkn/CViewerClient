@@ -12,9 +12,15 @@ import com.ivl.cviewer.CViewerClient;
 
 public class ServerConnection {
 	private static String TAG = "Server Connection";
-	
 	public static final int PORT = 1111;
 	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
+
+	// request details 
+	private static final int R_DETAILS = 68;  // D
+	// send a comment
+	private static final int S_COMMENT = 67;  // C
+	// request more details
+	private static final int R_MORE = 77;     // M
 	
 	private final CViewerClient client_;
 	private final Socket serverSocket_;
@@ -42,10 +48,14 @@ public class ServerConnection {
 
 	protected void send(byte[] bytes) throws IOException {
 		if (serverSocket_ == null) {
-			Log.e(TAG, "no server to send to!");
+			Log.e(TAG, "No server to send to!");
 			return;
 		}
-
+		if (bytes == null) {
+			Log.e(TAG, "No bytes to send!");
+			return;
+		}
+		
 		Log.d(TAG, "Sending " + bytes.length + " bytes!***");
 		serverSocket_.getOutputStream().write(bytes);
 	}
@@ -58,7 +68,7 @@ public class ServerConnection {
 		  	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
 			tmp.writeShort(jpegBytes.length);
 			tmp.flush();
-			outputStream.write(68);
+			outputStream.write(R_DETAILS);
 			outputStream.write(jpegBytes);
 			
 			send(outputStream.toByteArray());

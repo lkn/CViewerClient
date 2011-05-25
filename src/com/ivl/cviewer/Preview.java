@@ -96,7 +96,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     		// Send preview frames to server
 			@Override
 			public void onPreviewFrame(byte[] data, Camera camera) {
-				if (!sendData_) return;
+				if (!sendData_ || server_ == null) return;
 				
 				++count_;
 
@@ -124,7 +124,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
                     yuvImage.compressToJpeg(rect, 90, tmp);
 
                     jpegBytes = tmp.toByteArray();
-                    server_.sendPreviewFrame(jpegBytes);
+                	server_.sendPreviewFrame(jpegBytes);
                   } else if (imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.RGB_565) {
                 	 Log.e(TAG, "TODO: image format JPEG or rgb");
                   }
