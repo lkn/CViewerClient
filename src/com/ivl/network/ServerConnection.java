@@ -3,6 +3,7 @@ package com.ivl.network;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -66,21 +67,46 @@ public class ServerConnection {
         DataOutputStream tmp = new DataOutputStream(outputStream);
         try {
 		  	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
-			tmp.writeShort(jpegBytes.length);
+			
+		  	// the header
+		  	tmp.writeShort(jpegBytes.length);
 			tmp.flush();
 			outputStream.write(R_DETAILS);
-			outputStream.write(jpegBytes);
 			
+			outputStream.write(jpegBytes);
 			send(outputStream.toByteArray());
+			
 			tmp.close();
 			outputStream.close();
 		} catch (IOException e) {
+			Log.e(TAG, "ugh");
 			e.printStackTrace();
 		}
 	}
 	
-	public void getMoreDetails() {
-		DetailsMap moreDetails = new DetailsMap("test");
-		client_.handleMoreDetails(moreDetails);
+	// get more details for this image id
+	public void getMoreDetails(int imageId) {
+		try {
+			byte[] asciiIdBytes = Integer.toString(imageId).getBytes("US-ASCII");
+			
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			DataOutputStream tmp = new DataOutputStream(outputStream);
+			
+			// header
+			tmp.writeShort(asciiIdBytes.length);
+			tmp.flush();
+			outputStream.write(R_MORE);
+			
+			outputStream.write(asciiIdBytes);
+			send(outputStream.toByteArray());
+			
+			tmp.close();
+			outputStream.close();
+		} catch (UnsupportedEncodingException e) {
+			Log.e(TAG, "crap");
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

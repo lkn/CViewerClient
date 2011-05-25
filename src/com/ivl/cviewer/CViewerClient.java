@@ -1,7 +1,6 @@
 package com.ivl.cviewer;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
@@ -20,7 +19,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.ivl.cviewerclient.R;
-import com.ivl.network.DetailsMap;
+import com.ivl.network.MatchedImage;
 import com.ivl.network.ServerConnection;
 import com.ivl.network.TCPListenHandler;
 import com.ivl.network.TCPListener;
@@ -34,7 +33,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 	private InfoView infoView_;
 
 	private ServerConnection serverConnection_;
-	private int matchId_;  // id of the matched image
+	private MatchedImage matchedImage_;
 	private boolean sendPreviewFrames_;
 	
     @Override
@@ -78,7 +77,7 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
         
         setContentView(frame);
         
-        matchId_ = INVALID;
+        matchedImage_ = null;
         sendPreviewFrames_ = true;
         preview_.sendData();
     }
@@ -120,10 +119,8 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
 			preview_.sendData();
 		} else {
-			Toast.makeText(getApplicationContext(), "stop preview action, send own request", Toast.LENGTH_SHORT).show();
-			matchId_ = 4;  // guiness factory 2
+			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
-			serverConnection_.getMoreDetails();
 		}
 		openOptionsMenu();
 		sendPreviewFrames_ = !sendPreviewFrames_;
@@ -143,39 +140,19 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 	// data from Preview
     public void callCompleted(String info) {
     	Log.d(TAG, "received: " + info);
-    	if (info != null && !info.equals("-1")) {
-    		String[] arr = info.split("#");
-    		StringBuffer buffer = new StringBuffer();
-    		for (int i = 0; i < arr.length; ++i) {
-    			switch (i) {
-    			case 0:  // image name
-    				buffer.append("Name: ").append(arr[i]).append("\n");
-    				break;
-    			case 1:  // id
-    				matchId_ = Integer.parseInt(arr[i]);
-    				break;
-    			case 2:  // date time
-    				buffer.append("Date Taken: ").append(arr[i]).append("\n");
-    				break;
-    			case 3: // camera model
-    				buffer.append("Camera Model: ").append(arr[i]).append("\n");
-    				break;
-    			case 4:  // shutter speed
-    				buffer.append("Shutter Speed: ").append(arr[i]).append("\n");
-    				break;
-    			case 5:  // focal length
-    				buffer.append("Focal Length: ").append(arr[i]).append("\n");
-    				break;
-    			}
-    		}
-    		infoView_.setInfoText(buffer.toString());
-    	} else {
-    		infoView_.clear();
-    		matchId_ = INVALID;
-    	}
+    	if (info == null) return;
+
+		displayDetails(info);
     }
 
-    public void handleMoreDetails(DetailsMap detailsMap) {
-    	Toast.makeText(getApplicationContext(), "handling more details", Toast.LENGTH_SHORT).show();
-    }
+	private void displayDetails(String info) {
+		if (info != null && !info.equals("-1")) {
+			infoView_.clear();
+    		matchedImage_ = null;
+    		return;
+		}
+		
+		matchedImage_ = new MatchedImage(info);
+		infoView_.setInfoText(matchedImage_.details());
+	}
 }
