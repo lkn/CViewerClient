@@ -13,7 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +21,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -49,6 +50,8 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	private InfoView infoView_;
 	private Infodialog descriptionBox_;
 	private Dialog makeCommentBox_;
+	private ListView viewCommentsList_;
+	private CommentsAdapter commentsAdapter_;
 
 	private ServerConnection serverConnection_;
 	private MatchedImage matchedImage_;
@@ -92,10 +95,20 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         
         frame.addView(preview_);
         frame.addView(infoView_);
+
+        viewCommentsList_ = new ListView(this);
+        commentsAdapter_ = new CommentsAdapter(this, null);
+        viewCommentsList_.setAdapter(commentsAdapter_);
+        viewCommentsList_.setVisibility(View.GONE);
+        
+        frame.addView(viewCommentsList_);
+        
         wholeFrame.addView(frame);
+        
         
         menu_ = new CViewerMenu(this);
         wholeFrame.addView(menu_);
+
         
         setContentView(wholeFrame);
         
@@ -169,8 +182,38 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 				makeCommentBox_.show();
 				break;
 			case MENU_VIEW_COMMENTS:
+				if (matchedImage_.commentEntries() == null) {
+					Toast.makeText(getApplicationContext(), "No comments!", Toast.LENGTH_SHORT).show();
+					break;
+				}
+				commentsAdapter_.setComments(matchedImage_.commentEntries());
+				swapViews();
 				break;
 		}
+	}
+	
+	protected void swapViews() {
+		if (viewCommentsList_.getVisibility() == View.VISIBLE) {
+			viewCommentsList_.setVisibility(View.GONE);
+			preview_.setVisibility(View.VISIBLE);
+			infoView_.setVisibility(View.VISIBLE);
+		} else {
+			viewCommentsList_.setVisibility(View.VISIBLE);
+			preview_.setVisibility(View.GONE);
+			infoView_.setVisibility(View.GONE);
+		}
+	}
+	
+	// hacked... ONLY use the back key for the comments list
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (viewCommentsList_.getVisibility() == View.VISIBLE) {
+			if (keyCode == KeyEvent.KEYCODE_BACK) {
+				swapViews();
+				return true;
+			}
+		}
+		return false;
 	}
 	
     @Override
