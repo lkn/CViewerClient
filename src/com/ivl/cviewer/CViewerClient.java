@@ -127,7 +127,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         
         //initialize the menu
         mMenu = new CustomMenu(this, this, getLayoutInflater());
-        mMenu.setHideOnSelect(true);
+        mMenu.setHideOnSelect(false);
         mMenu.setItemsPerLineInPortraitOrientation(4);
         mMenu.setItemsPerLineInLandscapeOrientation(8);
         mMenu.hide();
@@ -147,21 +147,23 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 		}
 	}
 	
-
 	/**
      * For the demo just toast the item selected.
      */
 	@Override
 	public void MenuItemSelectedEvent(CustomMenuItem selection) {
-		Toast t = Toast.makeText(this, "You selected item #"+Integer.toString(selection.getId()), Toast.LENGTH_SHORT);
-		t.setGravity(Gravity.CENTER, 0, 0);
-		t.show();
-		
 		switch (selection.getId()) {
 			case MENU_DESCRIPTION:
 				descriptionBox_.setText(matchedImage_.description());
 				break;
 			case MENU_MAP:
+				if (matchedImage_.hasGPS()) {
+					
+				} else {
+					Toast.makeText(getApplicationContext(),
+							"No gps data for " + matchedImage_.name(),
+							Toast.LENGTH_SHORT).show();
+				}
 				break;
 			case MENU_MAKE_COMMENT:
 				makeCommentBox_.show();
@@ -185,7 +187,13 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
     
     @Override
     protected void onStop() {
-    	super.onStop();
+    	super.onResume();
+    	preview_.stopData();
+    }
+    
+    @Override
+    protected void onDestroy() {
+    	super.onDestroy();
     	if (serverConnection_ != null) {
     		serverConnection_.close();
     	}
@@ -233,6 +241,10 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	
 	@Override
 	public void onClick(View view) {
+		if (matchedImage_ == null) {
+			Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_SHORT).show();
+			return;
+		}
 		if (preview_.isSending()) {
 			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
