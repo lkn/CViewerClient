@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ import com.ivl.network.ServerConnection;
 import com.ivl.network.TCPListenHandler;
 import com.ivl.network.TCPListener;
 
-public class CViewerClient extends Activity implements TCPListener, CommentListener, OnClickListener {
+public class CViewerClient extends Activity implements TCPListener, OnClickListener {
 	private static String TAG = "CViewerClient";
 
 	private Preview preview_;
@@ -39,7 +41,6 @@ public class CViewerClient extends Activity implements TCPListener, CommentListe
 
 	private ServerConnection serverConnection_;
 	private MatchedImage matchedImage_;
-	private boolean sendPreviewFrames_;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,7 +86,6 @@ public class CViewerClient extends Activity implements TCPListener, CommentListe
         setContentView(wholeFrame);
         
         matchedImage_ = null;
-        sendPreviewFrames_ = true;
         preview_.sendData();
         
         descriptionBox_ = new Infodialog(this);
@@ -97,13 +97,17 @@ public class CViewerClient extends Activity implements TCPListener, CommentListe
 	        .setTitle(R.string.commentdialog_title)
 	        .setView(textEntryView)
 	        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-            }
-        })
-        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-            	preview_.sendData();
-            }
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	            	EditText a = (EditText) textEntryView.findViewById(R.id.username_edit);
+	            	EditText b = (EditText) textEntryView.findViewById(R.id.comment_edit);
+	            	Log.i(TAG, "user: " + a + " sending comment: " + b);
+	            	serverConnection_.sendComment(a.getText().toString(), b.getText().toString(), matchedImage_.id());
+	            }
+	        })
+	        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	            	preview_.sendData();
+	         }
         })
         .create();
     }
@@ -129,26 +133,30 @@ public class CViewerClient extends Activity implements TCPListener, CommentListe
         switch (item.getItemId()) {
         	case R.id.description:
         		descriptionBox_.setText(matchedImage_.description());
-                return true;
+                break;
         	case R.id.map:
-                return true;
+                break;
         	case R.id.comment:
         		commentBox_.show();
-        		return true;
+        		break;
         	case R.id.view_comments:
-        		return true;
+        		break;
+        	default:
+        		return false;
         }
-        return false;
+        preview_.sendData();
+        return true;
     } 
 
 	@Override
 	public void onClick(View view) {
-		if (sendPreviewFrames_) {
-			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
-			preview_.sendData();
-		} else {
+		if (preview_.isSending()) {
 			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
+			
+		} else {
+			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
+			preview_.sendData();
 		}
 		openOptionsMenu();
 	}
@@ -184,8 +192,4 @@ public class CViewerClient extends Activity implements TCPListener, CommentListe
 		infoView_.setInfoText(matchedImage_.details());
 	}
 
-	@Override
-	public void sendComment(String user, String msg) {
-		
-	}
 }

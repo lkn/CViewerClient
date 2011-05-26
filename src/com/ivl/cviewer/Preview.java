@@ -45,12 +45,16 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
         sendData_ = false;
     }
 
-    void sendData() {
+    public void sendData() {
     	sendData_ = true;
     }
     
-    void stopData() {
+    public void stopData() {
     	sendData_ = false;
+    }
+    
+    public boolean isSending() {
+    	return sendData_;
     }
     
     public void surfaceCreated(SurfaceHolder holder) {

@@ -12,7 +12,7 @@ import android.util.Log;
 import com.ivl.cviewer.CViewerClient;
 
 public class ServerConnection {
-	private static String TAG = "Server Connection";
+	private static String TAG = "ServerConnection";
 	public static final int PORT = 1111;
 	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
 
@@ -107,6 +107,33 @@ public class ServerConnection {
 			Log.e(TAG, "crap");
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	// need to null terminate string to send to c++ server
+	public void sendComment(String user, String comment, int imageId) {
+        try {
+        	byte[] dataToSend = new String(user + "#" + comment + "#" + Integer.toString(imageId)).getBytes("US-ASCII");
+        	
+        	
+        	ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        	DataOutputStream tmp = new DataOutputStream(outputStream);
+		  	Log.d(TAG, "number of string bytes: " + dataToSend.length); 
+			
+		  	// the header
+		  	tmp.writeShort(dataToSend.length +1);
+			tmp.flush();
+			outputStream.write(S_COMMENT);
+			
+			outputStream.write(dataToSend);
+			outputStream.write(0);
+			send(outputStream.toByteArray());
+			
+			tmp.close();
+			outputStream.close();
+		} catch (IOException e) {
+			Log.e(TAG, "poop");
 			e.printStackTrace();
 		}
 	}
