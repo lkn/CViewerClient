@@ -27,6 +27,11 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     ServerConnection server_;
 	private static int count_ = 0;
 	private boolean sendData_;
+	
+	private static final int COMPRESSION_QUALITY = 80;
+	private static final int SEND_WIDTH = 160;
+	private static final int SEND_HEIGHT = 120;
+	
     
     Preview(Context context, ServerConnection server) {
         super(context);
@@ -127,7 +132,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 			Log.d(TAG, "success creating bm " + bm); 
 			Bitmap scaledBm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, false);
 			  ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-		        if (scaledBm.compress(Bitmap.CompressFormat.JPEG, 90, byteStream)) {
+		        if (scaledBm.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY, byteStream)) {
 		        	Log.d(TAG, "Success compressing");
 		        	jpegBytes = byteStream.toByteArray();
 		            Log.d(TAG, "num jpeg bytes: " + jpegBytes.length);
@@ -191,7 +196,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 				Camera.Parameters parameters = camera_.getParameters();
 				int imageFormat = parameters.getPreviewFormat();
                 if (imageFormat == ImageFormat.NV21) {
-    				byte[] jpegBytes = NV21ToScaledJPEG(data, 320, 240);
+    				byte[] jpegBytes = NV21ToScaledJPEG(data, SEND_WIDTH, SEND_HEIGHT);
                 	server_.sendPreviewFrame(jpegBytes);
                 } else if (imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.RGB_565) {
                 	Log.e(TAG, "TODO: image format JPEG or rgb");

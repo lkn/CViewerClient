@@ -10,10 +10,11 @@ import java.net.UnknownHostException;
 import android.util.Log;
 
 import com.ivl.cviewer.CViewerClient;
+import com.ivl.cviewer.InfoView;
 
 public class ServerConnection {
 	private static String TAG = "ServerConnection";
-	public static final int PORT = 1111;
+	public static final int PORT = 2222;
 	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
 
 	// request details 
@@ -25,11 +26,14 @@ public class ServerConnection {
 	
 	private final CViewerClient client_;
 	private final Socket serverSocket_;
+	
+	private final InfoView infoView_;
 
-	public ServerConnection(CViewerClient client) throws UnknownHostException, IOException {
+	public ServerConnection(CViewerClient client, InfoView infoView) throws UnknownHostException, IOException {
 		client_ = client;
 		serverSocket_ = new Socket(HOST, PORT);
 		serverSocket_.setTcpNoDelay(true);
+		infoView_ = infoView;
 	}
 	
 	public void close() {
@@ -37,7 +41,7 @@ public class ServerConnection {
 			try {
 				serverSocket_.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				infoView_.appendErrorText("Unable to close server: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
@@ -80,6 +84,7 @@ public class ServerConnection {
 			outputStream.close();
 		} catch (IOException e) {
 			Log.e(TAG, "ugh");
+			infoView_.appendErrorText("Unable to send preview frame: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}
@@ -134,6 +139,7 @@ public class ServerConnection {
 			outputStream.close();
 		} catch (IOException e) {
 			Log.e(TAG, "poop");
+			infoView_.appendErrorText("Unable to send comment: " + e.getMessage());
 			e.printStackTrace();
 		}
 	}

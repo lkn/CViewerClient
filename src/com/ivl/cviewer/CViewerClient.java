@@ -77,7 +77,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         }
         
         try {
-			serverConnection_ = new ServerConnection(this);
+			serverConnection_ = new ServerConnection(this, infoView_);
 
 			// start thread to listen to server
 			Thread t = new Thread(new TCPListenHandler(this, this, serverConnection_.getSocket()));
@@ -311,10 +311,10 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 		
 		doMenu();
 		if (mMenu.isShowing()) {
-			Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
+//			Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
 		} else {
-			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
+//			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
 			preview_.sendData();
 		}
 	}
