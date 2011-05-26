@@ -15,8 +15,6 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import com.ivl.cviewerclient.R;
-
 /**
  * CustomMenu class
  *

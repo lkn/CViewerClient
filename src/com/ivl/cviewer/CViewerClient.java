@@ -7,10 +7,13 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -26,7 +29,6 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.ivl.cviewer.CustomMenu.OnMenuItemSelectedListener;
-import com.ivl.cviewerclient.R;
 import com.ivl.network.MatchedImage;
 import com.ivl.network.ServerConnection;
 import com.ivl.network.TCPListenHandler;
@@ -171,7 +173,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 				break;
 			case MENU_MAP:
 				if (matchedImage_.hasGPS()) {
-					
+					launchMap(matchedImage_.gps_lat(), matchedImage_.gps_long(), matchedImage_.name());
 				} else {
 					Toast.makeText(getApplicationContext(),
 							"No gps data for " + matchedImage_.name(),
@@ -205,13 +207,14 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	}
 	
 	// hacked... ONLY use the back key for the comments list
+	// except now the back key doesnt work normally to exit the app..
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (viewCommentsList_.getVisibility() == View.VISIBLE) {
 			if (keyCode == KeyEvent.KEYCODE_BACK) {
 				swapViews();
-				return true;
 			}
+			return true;
 		}
 		return false;
 	}
@@ -225,7 +228,9 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
     @Override
     protected void onResume() {
     	super.onResume();
-    	preview_.sendData();
+    	if (!mMenu.isShowing()) {
+    		preview_.sendData();
+    	}
     }
     
     @Override
@@ -282,22 +287,46 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 		}
 	}
 	
+	private void launchMap(float lat, float lon, String name) {
+	    Uri uri = Uri.parse("geo:0,0?q=" +
+	            lat + "," + lon + " (" + name + ")");
+	    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+	    try {
+	        startActivity(intent);
+	    } catch (ActivityNotFoundException e) {
+	        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
+	        dialog.setTitle("Location");
+	        dialog.setMessage(lat + ", " + lon);
+	        dialog.setPositiveButton("OK", null);
+	        dialog.show();
+	    }
+	}
+	
 	@Override
 	public void onClick(View view) {
 		if (matchedImage_ == null) {
 			Toast.makeText(getApplicationContext(), "No image selected", Toast.LENGTH_SHORT).show();
 			return;
 		}
-		if (preview_.isSending()) {
-			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
+		
+		doMenu();
+		if (mMenu.isShowing()) {
+			Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
-			
 		} else {
 			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
 			preview_.sendData();
 		}
-		
-		doMenu();
+//		if (preview_.isSending()) {
+//			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
+//			preview_.stopData();
+//			
+//		} else {
+//			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
+//			preview_.sendData();
+//		}
+//		
+//		doMenu();
 	}
 
 	private void setFullScreen() {

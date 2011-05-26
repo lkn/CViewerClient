@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.ivl.cviewerclient.R;
-
 public class CommentsAdapter extends BaseAdapter {
 
 	List<CommentEntry> mComments;

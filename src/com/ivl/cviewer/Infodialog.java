@@ -2,13 +2,8 @@ package com.ivl.cviewer;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.os.CountDownTimer;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.ivl.cviewerclient.R;
 
 public class Infodialog extends Dialog {
 
