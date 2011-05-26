@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/description"
+          android:icon="@drawable/icon"
+          android:title="@string/description" />
+    <item android:id="@+id/map"
+          android:icon="@drawable/icon"
+          android:title="@string/map" />
+    <item android:id="@+id/comment"
+          android:icon="@drawable/icon"
+          android:title="@string/comment" />
+    <item android:id="@+id/view_comments"
+          android:icon="@drawable/icon"
+          android:title="@string/view_comments" />
+</menu>
