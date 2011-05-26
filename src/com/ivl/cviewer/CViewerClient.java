@@ -129,7 +129,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	            public void onClick(DialogInterface dialog, int whichButton) {
 	            	EditText a = (EditText) textEntryView.findViewById(R.id.username_edit);
 	            	EditText b = (EditText) textEntryView.findViewById(R.id.comment_edit);
-	            	Log.i(TAG, "user: " + a + " sending comment: " + b);
+	            	//Log.i(TAG, "user: " + a + " sending comment: " + b);
 	            	serverConnection_.sendComment(a.getText().toString(), b.getText().toString(), matchedImage_.id());
 	            }
 	        })
@@ -235,7 +235,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
     
     @Override
     protected void onStop() {
-    	super.onResume();
+    	super.onStop();
     	preview_.stopData();
     }
     
