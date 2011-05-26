@@ -2,9 +2,13 @@
 <resources>
     <string name="hello">Hello World, CViewerClient!</string>
     <string name="app_name">CViewerClient</string>
-    
     <string name="description">Description</string>
     <string name="map">Map</string>
     <string name="comment">Comment</string>
     <string name="view_comments">View Comments</string>
+    <string name="alert_dialog_comment">Comments</string>
+    <string name="alert_dialog_username">Your Name</string>
+    <string name="commentdialog_title">Enter Your Comments</string> 
+    <string name="alert_dialog_ok">Submit</string>
+    <string name="alert_dialog_cancel">Cancel</string>
 </resources>

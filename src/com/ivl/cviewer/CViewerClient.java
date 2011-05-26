@@ -4,10 +4,14 @@ import java.io.IOException;
 import java.net.UnknownHostException;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -16,6 +20,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.ivl.cviewerclient.R;
@@ -24,14 +29,13 @@ import com.ivl.network.ServerConnection;
 import com.ivl.network.TCPListenHandler;
 import com.ivl.network.TCPListener;
 
-public class CViewerClient extends Activity implements TCPListener, OnClickListener {
+public class CViewerClient extends Activity implements TCPListener, CommentListener, OnClickListener {
 	private static String TAG = "CViewerClient";
 
-	private static int INVALID = -1;
-	
 	private Preview preview_;
 	private InfoView infoView_;
 	private Infodialog descriptionBox_;
+	private Dialog commentBox_;
 
 	private ServerConnection serverConnection_;
 	private MatchedImage matchedImage_;
@@ -69,20 +73,39 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			infoView_.appendErrorText("Couldn't connect (io) to " + ServerConnection.HOST  + "\n");
 		}
         
+		LinearLayout wholeFrame = new LinearLayout(this);
         FrameLayout frame = new FrameLayout(this);
         preview_ = new Preview(this, serverConnection_);
         preview_.setOnClickListener(this);
         
         frame.addView(preview_);
         frame.addView(infoView_);
+        wholeFrame.addView(frame);
         
-        setContentView(frame);
+        setContentView(wholeFrame);
         
         matchedImage_ = null;
         sendPreviewFrames_ = true;
         preview_.sendData();
         
         descriptionBox_ = new Infodialog(this);
+        
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(R.layout.commentdialog, null);
+        commentBox_ = new AlertDialog.Builder(CViewerClient.this)
+	        .setIcon(R.drawable.alert_dialog_icon)
+	        .setTitle(R.string.commentdialog_title)
+	        .setView(textEntryView)
+	        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            }
+        })
+        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+            	preview_.sendData();
+            }
+        })
+        .create();
     }
 
     @Override
@@ -106,13 +129,14 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
         switch (item.getItemId()) {
         	case R.id.description:
         		descriptionBox_.setText(matchedImage_.description());
-                break;
+                return true;
         	case R.id.map:
-                break;
+                return true;
         	case R.id.comment:
-        		break;
+        		commentBox_.show();
+        		return true;
         	case R.id.view_comments:
-        		break;
+        		return true;
         }
         return false;
     } 
@@ -127,7 +151,6 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 			preview_.stopData();
 		}
 		openOptionsMenu();
-		sendPreviewFrames_ = !sendPreviewFrames_;
 	}
 
 	private void setFullScreen() {
@@ -159,5 +182,10 @@ public class CViewerClient extends Activity implements TCPListener, OnClickListe
 		matchedImage_ = new MatchedImage(info);
 		Log.d(TAG, "details parsed: " + matchedImage_.details());
 		infoView_.setInfoText(matchedImage_.details());
+	}
+
+	@Override
+	public void sendComment(String user, String msg) {
+		
 	}
 }
