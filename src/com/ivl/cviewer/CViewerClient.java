@@ -317,16 +317,6 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
 			preview_.sendData();
 		}
-//		if (preview_.isSending()) {
-//			Toast.makeText(getApplicationContext(), "stop preview action", Toast.LENGTH_SHORT).show();
-//			preview_.stopData();
-//			
-//		} else {
-//			Toast.makeText(getApplicationContext(), "resume preview action", Toast.LENGTH_SHORT).show();
-//			preview_.sendData();
-//		}
-//		
-//		doMenu();
 	}
 
 	private void setFullScreen() {

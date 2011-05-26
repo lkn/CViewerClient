@@ -1,17 +1,18 @@
 package com.ivl.cviewer;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.Socket;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.ImageFormat;
-import android.graphics.Rect;
-import android.graphics.YuvImage;
 import android.hardware.Camera;
 import android.hardware.Camera.PreviewCallback;
+import android.os.Environment;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -79,12 +80,84 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
         camera_.release();
         camera_ = null;
     }
+    
+    static public void decodeYUV420SP(int[] rgb, byte[] yuv420sp, int width, int height) {
+        final int frameSize = width * height;
 
+        for (int j = 0, yp = 0; j < height; j++) {
+            int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
+            for (int i = 0; i < width; i++, yp++) {
+                int y = (0xff & ((int) yuv420sp[yp])) - 16;
+                if (y < 0) y = 0;
+                if ((i & 1) == 0) {
+                    v = (0xff & yuv420sp[uvp++]) - 128;
+                    u = (0xff & yuv420sp[uvp++]) - 128;
+                }
+                int y1192 = 1192 * y;
+                int r = (y1192 + 1634 * v);
+                int g = (y1192 - 833 * v - 400 * u);
+                int b = (y1192 + 2066 * u);
+
+                if (r < 0) r = 0; else if (r > 262143) r = 262143;
+                if (g < 0) g = 0; else if (g > 262143) g = 262143;
+                if (b < 0) b = 0; else if (b > 262143) b = 262143;
+
+                rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) & 0xff00) | ((b >> 10) & 0xff);
+            }
+        }
+    }
+
+
+    protected byte[] NV21ToScaledJPEG(byte[] bitmap, int newWidth, int newHeight) {
+    	Log.d(TAG, "num yuv bytes: " + bitmap.length);
+		Log.d(TAG, "storing: " + Environment.getExternalStorageDirectory().getAbsolutePath()
+				 + "\nstate: " + Environment.getExternalStorageState());
+		File root = Environment.getExternalStorageDirectory();
+		Camera.Parameters parameters = camera_.getParameters();
+		byte[] jpegBytes = null;
+
+		int w = parameters.getPreviewSize().width;
+		Log.d(TAG, "parameter width " + w);
+        int h = parameters.getPreviewSize().height;
+        Log.d(TAG, "parameter height " + h);
+		int rgb[] = new int[w*h];
+		decodeYUV420SP(rgb, bitmap, w, h);
+		Bitmap bm = Bitmap.createBitmap(rgb, w, h, Config.ARGB_8888);
+		if (bm != null) {
+			Log.d(TAG, "success creating bm " + bm); 
+			Bitmap scaledBm = Bitmap.createScaledBitmap(bm, newWidth, newHeight, false);
+			  ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		        if (scaledBm.compress(Bitmap.CompressFormat.JPEG, 80, byteStream)) {
+		        	Log.d(TAG, "Success compressing");
+		        	jpegBytes = byteStream.toByteArray();
+		            Log.d(TAG, "num jpeg bytes: " + jpegBytes.length);
+		            
+		            /*
+		            // For debugging yo
+		     		FileOutputStream fileStream;
+					try {
+						fileStream = new FileOutputStream(root + "/" + "image" + count_ + ".jpg");
+						fileStream.write(jpegBytes);
+						fileStream.flush();
+						fileStream.close();
+					} catch (FileNotFoundException e) {
+						Log.d(TAG, "file not found" + e.getMessage());
+						e.printStackTrace();
+					} catch (IOException e) {
+						Log.d(TAG, "io exception " + e.getMessage());
+						e.printStackTrace();
+					}
+					*/
+		        }
+			
+		}
+		
+		return jpegBytes;
+    }
+    
+    // TODO: should use preview frame rate?
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
-        // Now that the size is known, set up the camera parameters and begin
-        // the preview.
         Camera.Parameters parameters = camera_.getParameters();
-//        parameters.setPreviewSize(320, 240);
 //        parameters.setPreviewFrameRate(15);
 //        parameters.setSceneMode(Camera.Parameters.SCENE_MODE_NIGHT);
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
@@ -100,12 +173,14 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     		// Send preview frames to server
 			@Override
 			public void onPreviewFrame(byte[] data, Camera camera) {
-				if (!sendData_ || server_ == null) return;
 				
 				++count_;
-
+				
+				// no point in sending goodies
+				if (!sendData_ || server_ == null) return;
+				
 				// Don't want to overload the server
-				if (count_ % 20 != 0) return;
+				if (count_ % 15 != 0) return;
 
 				Log.d(TAG, "on preview frame " + count_);
 				if (camera_ == null) {
@@ -115,24 +190,14 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 				
 				Camera.Parameters parameters = camera_.getParameters();
 				int imageFormat = parameters.getPreviewFormat();
-                byte[] jpegBytes = null;
                 if (imageFormat == ImageFormat.NV21) {
-                	Log.d(TAG, "image format NV21");
-                	int w = parameters.getPreviewSize().width;
-                    int h = parameters.getPreviewSize().height;
-                    YuvImage yuvImage = new YuvImage(data, imageFormat, w, h, null);
-                    
-                    // TODO: hardcoded.. the server assumes its a 160x120 image
-                    Rect rect = new Rect(0, 0, 400, 300);
-                    ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                    yuvImage.compressToJpeg(rect, 90, tmp);
-
-                    jpegBytes = tmp.toByteArray();
+    				byte[] jpegBytes = NV21ToScaledJPEG(data, 160, 120);
                 	server_.sendPreviewFrame(jpegBytes);
-                  } else if (imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.RGB_565) {
-                	 Log.e(TAG, "TODO: image format JPEG or rgb");
-                  }
+                } else if (imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.RGB_565) {
+                	Log.e(TAG, "TODO: image format JPEG or rgb");
+                }
 			} 
+			
     	});
     	
         camera_.startPreview();
