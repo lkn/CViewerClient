@@ -29,7 +29,7 @@ public class InfoView extends TextView {
 	
 	public void appendInfoText(String str) {
 		setTextColor(INFO_COLOR);
-		setText(str);
+		setText(str + "\n");
 	}
 	
 	public void setErrorText(String str) {
@@ -39,7 +39,7 @@ public class InfoView extends TextView {
 	
 	public void appendErrorText(String str) {
 		setTextColor(ERROR_COLOR);
-		setText(str);
+		setText(str + "\n");
 	}
 
 	public void clear() {

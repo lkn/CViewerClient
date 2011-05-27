@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout android:id="@+id/LinearLayout01"
         android:layout_width="fill_parent" xmlns:android="http://schemas.android.com/apk/res/android"
-        android:paddingLeft="10sp" android:paddingRight="10sp"
+        android:paddingLeft="10sp"
+        android:paddingRight="10sp"
         android:layout_height="wrap_content"
-        android:orientation="vertical" android:paddingTop="2sp">
+        android:orientation="vertical"
+        android:paddingTop="2sp">
         <TextView android:layout_height="wrap_content"
-                android:layout_width="fill_parent" android:id="@+id/commenter"
-                android:text="Name" android:typeface="sans" android:textSize="16sp" android:textStyle="bold">
+               android:layout_width="fill_parent" android:id="@+id/commenter"
+               android:text="Name"
+               android:typeface="sans"
+               android:textSize="16sp"
+               android:paddingTop="10sp"
+               android:textStyle="bold">
         </TextView>
-       <TextView android:layout_width="wrap_content"
-               android:layout_height="wrap_content" android:text="Number"
-               android:id="@+id/blurb" android:textSize="13sp">
-       </TextView>
+        <TextView android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="Comment"
+               android:paddingBottom="10sp"
+               android:id="@+id/blurb"
+               android:textSize="13sp">
+        </TextView>
 </LinearLayout>
 

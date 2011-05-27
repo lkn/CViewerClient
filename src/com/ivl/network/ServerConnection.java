@@ -14,8 +14,8 @@ import com.ivl.cviewer.InfoView;
 
 public class ServerConnection {
 	private static String TAG = "ServerConnection";
-	public static final int PORT = 2222;
-	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
+	public static final int PORT = 1111;
+	public static final String HOST = "pumice.ucsd.edu";
 
 	// request details 
 	private static final int R_DETAILS = 68;  // D

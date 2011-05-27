@@ -84,10 +84,10 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 			t.start();
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "Couldn't connect to (no host)" + ServerConnection.HOST);
-			infoView_.appendErrorText("Couldn't connect to (no host) " + ServerConnection.HOST + "\n");
+			infoView_.appendErrorText("Couldn't connect to (no host) " + ServerConnection.HOST + " " + ServerConnection.PORT);
 		} catch (IOException e) {
-			Log.e(TAG, "Couldn't connect to (io) " + ServerConnection.HOST );
-			infoView_.appendErrorText("Couldn't connect (io) to " + ServerConnection.HOST  + "\n");
+			Log.e(TAG, "Couldn't connect to (io) " + ServerConnection.HOST);
+			infoView_.appendErrorText("Couldn't connect (io) to " + ServerConnection.HOST + " " + ServerConnection.PORT);
 		}
         
 		RelativeLayout wholeFrame = new RelativeLayout(this);
@@ -167,6 +167,12 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
      */
 	@Override
 	public void MenuItemSelectedEvent(CustomMenuItem selection) {
+		if (matchedImage_ == null) {
+			Toast.makeText(getApplicationContext(), "No image selected!", Toast.LENGTH_SHORT).show();
+			mMenu.hide();
+			preview_.sendData();
+			return;
+		}
 		switch (selection.getId()) {
 			case MENU_DESCRIPTION:
 				descriptionBox_.setText(matchedImage_.description());
@@ -310,6 +316,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 		}
 		
 		doMenu();
+		
 		if (mMenu.isShowing()) {
 //			Toast.makeText(getApplicationContext(), "stop", Toast.LENGTH_SHORT).show();
 			preview_.stopData();
@@ -333,7 +340,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	// data from Preview
     public void callCompleted(String info) {
     	Log.d(TAG, "received: " + info);
-    	if (info == null) return;
+    	if (info == null || mMenu.isShowing()) return;
 
 		displayDetails(info);
     }
