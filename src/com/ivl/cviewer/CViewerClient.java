@@ -84,10 +84,11 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 			t.start();
 		} catch (UnknownHostException e) {
 			Log.e(TAG, "Couldn't connect to (no host)" + ServerConnection.HOST);
-			infoView_.appendErrorText("Couldn't connect to (no host) " + ServerConnection.HOST + " " + ServerConnection.PORT);
+			infoView_.appendErrorText("Couldn't connect to (" + e.getMessage() + ") "
+					+ ServerConnection.HOST + " " + ServerConnection.PORT);
 		} catch (IOException e) {
 			Log.e(TAG, "Couldn't connect to (io) " + ServerConnection.HOST);
-			infoView_.appendErrorText("Couldn't connect (io) to " + ServerConnection.HOST + " " + ServerConnection.PORT);
+			infoView_.appendErrorText("Couldn't connect (" + e.getMessage() + ") to " + ServerConnection.HOST + " " + ServerConnection.PORT);
 		}
         
 		RelativeLayout wholeFrame = new RelativeLayout(this);

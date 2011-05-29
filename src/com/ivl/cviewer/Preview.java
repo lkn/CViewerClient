@@ -28,9 +28,9 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 	private static int count_ = 0;
 	private boolean sendData_;
 	
-	private static final int COMPRESSION_QUALITY = 80;
-	private static final int SEND_WIDTH = 160;
-	private static final int SEND_HEIGHT = 120;
+	private static final int COMPRESSION_QUALITY = 100;
+	private static final int SEND_WIDTH = 216;
+	private static final int SEND_HEIGHT = 144;
 	
     
     Preview(Context context, ServerConnection server) {
@@ -153,6 +153,7 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 						e.printStackTrace();
 					}
 					*/
+					
 		        }
 			
 		}
@@ -163,8 +164,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
     // TODO: should use preview frame rate?
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         Camera.Parameters parameters = camera_.getParameters();
-//        parameters.setPreviewFrameRate(15);
-//        parameters.setSceneMode(Camera.Parameters.SCENE_MODE_NIGHT);
+        parameters.setPreviewFrameRate(15);
+        parameters.setSceneMode(Camera.Parameters.SCENE_MODE_NIGHT);
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
         camera_.setParameters(parameters);
     	
@@ -184,8 +185,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 				// no point in sending goodies
 				if (!sendData_ || server_ == null) return;
 				
-				// Don't want to overload the server
-				if (count_ % 15 != 0) return;
+				// send about 2 fps w/ frame rate set at 15
+				if (count_ % 8 != 0) return;
 
 				Log.d(TAG, "on preview frame " + count_);
 				if (camera_ == null) {

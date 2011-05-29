@@ -15,7 +15,7 @@ import com.ivl.cviewer.InfoView;
 public class ServerConnection {
 	private static String TAG = "ServerConnection";
 	public static final int PORT = 1111;
-	public static final String HOST = "pumice.ucsd.edu";
+	public static final String HOST = "192.168.1.104";//"pumice.ucsd.edu";
 
 	// request details 
 	private static final int R_DETAILS = 68;  // D
@@ -63,6 +63,7 @@ public class ServerConnection {
 		
 		Log.d(TAG, "Sending " + bytes.length + " bytes!***");
 		serverSocket_.getOutputStream().write(bytes);
+		serverSocket_.getOutputStream().flush();  // TODO: hope this works...
 	}
 	
 	// append header, send jpeg bytes to server
@@ -73,7 +74,7 @@ public class ServerConnection {
 		  	Log.d(TAG, "number of jpeg bytes: " + jpegBytes.length); 
 			
 		  	// the header
-		  	tmp.writeShort(jpegBytes.length);
+		  	tmp.writeInt(jpegBytes.length);
 			tmp.flush();
 			outputStream.write(R_DETAILS);
 			
@@ -99,7 +100,7 @@ public class ServerConnection {
 			DataOutputStream tmp = new DataOutputStream(outputStream);
 			
 			// header
-			tmp.writeShort(asciiIdBytes.length);
+			tmp.writeInt(asciiIdBytes.length);
 			tmp.flush();
 			outputStream.write(R_MORE);
 			
@@ -127,7 +128,7 @@ public class ServerConnection {
 		  	Log.d(TAG, "number of string bytes: " + dataToSend.length); 
 			
 		  	// the header
-		  	tmp.writeShort(dataToSend.length +1);
+		  	tmp.writeInt(dataToSend.length +1);
 			tmp.flush();
 			outputStream.write(S_COMMENT);
 			
