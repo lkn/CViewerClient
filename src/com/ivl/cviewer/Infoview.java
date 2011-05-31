@@ -17,7 +17,7 @@ public class InfoView extends TextView {
 	private static int INFO_COLOR = Color.GREEN;
 	private static int ERROR_COLOR = Color.RED;
 	private static int BORDER_PADDING = 5;
-	private static int INFO_BACKGROUND = Color.argb(150, 139, 139, 131);
+	private static int INFO_BACKGROUND = Color.argb(150, 0, 0, 0);
 	
 	public InfoView(Context context) {
 		super(context);
@@ -29,7 +29,7 @@ public class InfoView extends TextView {
 	public void setInfoText(String str) {
 		setTextColor(INFO_COLOR);
 		if (str.endsWith("\n")) {
-			setText(str.substring(0, str.length()-1));
+			setText(str.substring(0, str.length() -1));
 		} else {
 			setText(str);
 		}
