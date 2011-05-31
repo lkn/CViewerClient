@@ -20,6 +20,8 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
@@ -67,6 +69,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         disableScreenTurnOff();
 
         infoView_ = new InfoView(this);
+        
         
         // check WIFI 
         // TODO: extend for any network connection
@@ -136,7 +139,6 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	        })
 	        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
 	            public void onClick(DialogInterface dialog, int whichButton) {
-	            	preview_.sendData();
 	         }
         })
         .create();
@@ -264,22 +266,22 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 		CustomMenuItem cmi = new CustomMenuItem();
 		Resources res = getResources();
 		cmi.setCaption(res.getString(R.string.description));
-		cmi.setImageResourceId(R.drawable.icon1);
+		cmi.setImageResourceId(R.drawable.ic_see_description);
 		cmi.setId(MENU_DESCRIPTION);
 		menuItems.add(cmi);
 		cmi = new CustomMenuItem();
 		cmi.setCaption(res.getString(R.string.map));
-		cmi.setImageResourceId(R.drawable.icon2);
+		cmi.setImageResourceId(R.drawable.ic_map);
 		cmi.setId(MENU_MAP);
 		menuItems.add(cmi);
 		cmi = new CustomMenuItem();
 		cmi.setCaption(res.getString(R.string.comment));
-		cmi.setImageResourceId(R.drawable.icon3);
+		cmi.setImageResourceId(R.drawable.ic_make_comment);
 		cmi.setId(MENU_MAKE_COMMENT);
 		menuItems.add(cmi);
 		cmi = new CustomMenuItem();
 		cmi.setCaption(res.getString(R.string.view_comments));
-		cmi.setImageResourceId(R.drawable.icon4);
+		cmi.setImageResourceId(R.drawable.ic_see_comment);
 		cmi.setId(MENU_VIEW_COMMENTS);
 		menuItems.add(cmi);
 		if (!mMenu.isShowing()) {

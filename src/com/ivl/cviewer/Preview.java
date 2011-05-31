@@ -29,10 +29,9 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 	private boolean sendData_;
 	
 	private static final int COMPRESSION_QUALITY = 100;
-	private static final int SEND_WIDTH = 216;
-	private static final int SEND_HEIGHT = 144;
+	private static final int SEND_WIDTH = 320;
+	private static final int SEND_HEIGHT = 240;
 	
-    
     Preview(Context context, ServerConnection server) {
         super(context);
         // Install a SurfaceHolder.Callback so we get notified when the
@@ -115,16 +114,11 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 
     protected byte[] NV21ToScaledJPEG(byte[] bitmap, int newWidth, int newHeight) {
     	Log.d(TAG, "num yuv bytes: " + bitmap.length);
-		Log.d(TAG, "storing: " + Environment.getExternalStorageDirectory().getAbsolutePath()
-				 + "\nstate: " + Environment.getExternalStorageState());
-		File root = Environment.getExternalStorageDirectory();
 		Camera.Parameters parameters = camera_.getParameters();
 		byte[] jpegBytes = null;
 
 		int w = parameters.getPreviewSize().width;
-		Log.d(TAG, "parameter width " + w);
         int h = parameters.getPreviewSize().height;
-        Log.d(TAG, "parameter height " + h);
 		int rgb[] = new int[w*h];
 		decodeYUV420SP(rgb, bitmap, w, h);
 		Bitmap bm = Bitmap.createBitmap(rgb, w, h, Config.ARGB_8888);
@@ -136,13 +130,18 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 		        	Log.d(TAG, "Success compressing");
 		        	jpegBytes = byteStream.toByteArray();
 		            Log.d(TAG, "num jpeg bytes: " + jpegBytes.length);
-		            
-		            /*
+		             
+		           /*
 		            // For debugging yo
+		            Log.d(TAG, "storing: " + Environment.getExternalStorageDirectory().getAbsolutePath()
+		            		+ "\nstate: " + Environment.getExternalStorageState());
+		            File root = Environment.getExternalStorageDirectory();
 		     		FileOutputStream fileStream;
 					try {
-						fileStream = new FileOutputStream(root + "/" + "image" + count_ + ".jpg");
-						fileStream.write(jpegBytes);
+						//fileStream = new FileOutputStream(root + "/" + "image" + count_ + ".jpg");
+						//fileStream.write(jpegBytes);
+						fileStream = new FileOutputStream(root + "/image" + count_ + ".jpg");
+						bm.compress(Bitmap.CompressFormat.JPEG, COMPRESSION_QUALITY	, fileStream);
 						fileStream.flush();
 						fileStream.close();
 					} catch (FileNotFoundException e) {
@@ -152,8 +151,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 						Log.d(TAG, "io exception " + e.getMessage());
 						e.printStackTrace();
 					}
-					*/
 					
+				*/
 		        }
 			
 		}
