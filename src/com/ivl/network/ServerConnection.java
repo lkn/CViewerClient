@@ -14,8 +14,8 @@ import com.ivl.cviewer.InfoView;
 
 public class ServerConnection {
 	private static String TAG = "ServerConnection";
-	public static final int PORT = 1111;
-	public static final String HOST = /*"192.168.1.104";//*/"pumice.ucsd.edu";
+	public static int PORT;
+	public static String HOST;
 
 	// request details 
 	private static final int R_DETAILS = 68;  // D
@@ -29,7 +29,9 @@ public class ServerConnection {
 	
 	private final InfoView infoView_;
 
-	public ServerConnection(CViewerClient client, InfoView infoView) throws UnknownHostException, IOException {
+	public ServerConnection(CViewerClient client, InfoView infoView, String server, String port) throws UnknownHostException, IOException {
+		PORT = Integer.parseInt(port);
+		HOST = server;
 		client_ = client;
 		serverSocket_ = new Socket(HOST, PORT);
 		serverSocket_.setTcpNoDelay(true);

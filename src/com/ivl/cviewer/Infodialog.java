@@ -13,7 +13,7 @@ public class Infodialog extends Dialog {
 		super(context);
 		setContentView(R.layout.infodialog);
 		ImageView img = (ImageView) findViewById(R.id.ImageView01);
-		img.setImageResource(R.drawable.panda);
+		img.setImageResource(R.drawable.ic_description_header);
 		setCancelable(true);
 		setCanceledOnTouchOutside(true);
 	}

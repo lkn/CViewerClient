@@ -54,11 +54,14 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
 	private InfoView infoView_;
 	private Infodialog descriptionBox_;
 	private Dialog makeCommentBox_;
+	private Dialog settingsBox_;
 	private ListView viewCommentsList_;
 	private CommentsAdapter commentsAdapter_;
 
 	private ServerConnection serverConnection_;
 	private MatchedImage matchedImage_;
+	
+	private boolean init;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,9 +72,31 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         disableScreenTurnOff();
 
         infoView_ = new InfoView(this);
+
+        LayoutInflater factory = LayoutInflater.from(this);
+        final View textEntryView = factory.inflate(R.layout.settingsdialog, null);
+        settingsBox_ = new AlertDialog.Builder(CViewerClient.this)
+	        .setIcon(R.drawable.alert_dialog_icon)
+	        .setTitle("Connection Settings")
+	        .setView(textEntryView)
+	        .setPositiveButton(R.string.alert_dialog_ok, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	            	EditText serverEdit = (EditText) textEntryView.findViewById(R.id.server_edit);
+	            	EditText portEdit = (EditText) textEntryView.findViewById(R.id.port_edit);
+	            	init(serverEdit.getText().toString(), portEdit.getText().toString());
+	            }
+	        })
+	        .setNegativeButton(R.string.alert_dialog_cancel, new DialogInterface.OnClickListener() {
+	            public void onClick(DialogInterface dialog, int whichButton) {
+	         }
+	    }).create();
         
-        
-        // check WIFI 
+        settingsBox_.show();
+        init = false;
+    }
+
+	private void init(String server, String port) {
+		// check WIFI 
         // TODO: extend for any network connection
         ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -80,7 +105,7 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         }
         
         try {
-			serverConnection_ = new ServerConnection(this, infoView_);
+			serverConnection_ = new ServerConnection(this, infoView_, server, port);
 
 			// start thread to listen to server
 			Thread t = new Thread(new TCPListenHandler(this, this, serverConnection_.getSocket()));
@@ -151,7 +176,8 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
         mMenu.hide();
         //load the menu items
         loadMenuItems();
-    }
+        init = true;
+	}
 
 	/**
      * Toggle our menu on user pressing the menu key.
@@ -231,13 +257,16 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
     @Override
     protected void onPause() {
     	super.onPause();
-    	preview_.stopData();
+    	if (init) {
+    		preview_.stopData();
+    	}
     }
     
     @Override
     protected void onResume() {
     	super.onResume();
-    	if (!mMenu.isShowing()) {
+    	
+    	if (init && !mMenu.isShowing()) {
     		preview_.sendData();
     	}
     }
@@ -245,13 +274,13 @@ public class CViewerClient extends Activity implements OnMenuItemSelectedListene
     @Override
     protected void onStop() {
     	super.onStop();
-    	preview_.stopData();
+    	if (init) preview_.stopData();
     }
     
     @Override
     protected void onDestroy() {
     	super.onDestroy();
-    	if (serverConnection_ != null) {
+    	if (init && serverConnection_ != null) {
     		serverConnection_.close();
     	}
     }

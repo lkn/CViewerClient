@@ -98,6 +98,10 @@ public class MatchedImage {
 		return details_.toString();
 	}
 	
+	public void setDetails(String str) {
+		details_ = new StringBuffer(str);
+	}
+	
 	public float gps_lat() {
 		return gps_lat_;
 	}
@@ -108,6 +112,10 @@ public class MatchedImage {
 	
 	public String description() {
 		return description_;
+	}
+	
+	public void setDescription(String str) {
+		description_ = str;
 	}
 	
 	public List<CommentEntry> commentEntries() {
