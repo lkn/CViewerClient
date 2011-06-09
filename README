@@ -1,0 +1,21 @@
+As you hover over images, you will know if the phone recognizes an image
+if image metadata displays on the top left corner of the phone screen.
+
+If there is metadata in the left corner, then you have the option of
+"selecting" / "interacting" with the object by tapping on the screen.
+On top, a menu should open up. At this point, the client will stop
+sending preview frames to the server. You can then click on
+any of the options. You will need to press the Android back key to
+return to the menu mode. To exit the menu mode, tap on the screen
+anywhere not on the menu. Now preview frames will resume being sent
+to server.
+
+NOTES:
+* The Android menu key has been disabled. The only way to get a menu
+for an image is to tap on the screen when it has been recognized.
+* The only way to "exit" the application is to press the Android home
+key. But this will not shut down any server connections (it will stop
+sending preview frames though). To completely exit, you need to shut
+down the task using an Android app such as TaskControl.
+* Only been tested on HTC Aria running 2.2
+
